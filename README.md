@@ -54,92 +54,92 @@ Switches
 _Plot_Appearance_
 
 -pltht n
-: set plot height in pixels 
+* set plot height in pixels 
 -pltln n
-: set plot length in pixels 
+* set plot length in pixels 
 -ovlap n
-:	set plot overlap in pixels, for multiple output plots.
-:	(to improve readability of plot sequences). 
+* set plot overlap in pixels, for multiple output plots.
+* (to improve readability of plot sequences). 
 -noaxt
-:	dont draw time axis 
+* dont draw time axis 
 -noaxf
-:	dont draw frequency axis 
+* dont draw frequency axis 
 -fiwvl
-:	label frequency in wavelengths instead of Hertz 
+* label frequency in wavelengths instead of Hertz 
 -logfs
-:	plot frequency axis as logarithmic progression instead of linear.
-:	( tends to overplot lower frequencies and sparsely plot highs ) 
+* plot frequency axis as logarithmic progression instead of linear.
+* ( tends to overplot lower frequencies and sparsely plot highs ) 
 -gamma n
-:	applies gamma adjustment to plot rendering
-:	(can improve appearance but distorts measurements)
-:	If set to 1, green and blue pixel values of 255 will indicate a potential sinusoidal component with amplitude equal or exceeding -mxamp. Pixel values under 255 will indicate an amplitude of mxamp*value/255 
+* applies gamma adjustment to plot rendering
+* (can improve appearance but distorts measurements)
+* If set to 1, green and blue pixel values of 255 will indicate a potential sinusoidal component with amplitude equal or exceeding -mxamp. Pixel values under 255 will indicate an amplitude of mxamp*value/255 
 
 _Time-scale_setters_
 
 -aplts n
-:	'autoplots' sets measure leap (time resolution) automatically to produce the specified number of plots for given audio file or a specified time range within file. 
+* 'autoplots' sets measure leap (time resolution) automatically to produce the specified number of plots for given audio file or a specified time range within file. 
 -tprpl n
-:	'time per plot', auto sets measureleap to fit time per plot (in millisecs) 
+* 'time per plot', auto sets measureleap to fit time per plot (in millisecs) 
 -lpsmp n
-:	'leap samples' Number of samples progressed for every measure.
-:	(This sets the time-scale of the horizontal axis) 
+* 'leap samples' Number of samples progressed for every measure.
+* (This sets the time-scale of the horizontal axis) 
 -lptim n
-:	same as -lpsmp, expressed in millisecs. (millisecs per pixel) 
+* same as -lpsmp, expressed in millisecs. (millisecs per pixel) 
 -rleap n
-:	round 'measure leap' down to whole sample length, (fwiw). 
+* round 'measure leap' down to whole sample length, (fwiw). 
 
 _Plot_Range_
 
 -dursp n
-:	duration to plot in millisecs 
+* duration to plot in millisecs 
 -stspc n
-:	start plot at n millisecs 
+* start plot at n millisecs 
 -fnspc n
-:	finish plot at n millisecs 
+* finish plot at n millisecs 
 
 _Measurement_Parameters_
 
 -mxamp n
-:	maximum amplitude to expect in audio,
-:	affects brightness of spectrogram. 
+* maximum amplitude to expect in audio,
+* affects brightness of spectrogram. 
 -pxamp n
-:	precalculate maximum amplitude and adjust by factor n.
-:	plot range is pre-passed to estimate maximum amplitude before plotting, and optionally adjusted by factor n.
-:	e.g. "-pxamp 0.5" sets mxamp to 0.5 * maximum amplitude estimated by pre-pass. 
+* precalculate maximum amplitude and adjust by factor n.
+* plot range is pre-passed to estimate maximum amplitude before plotting, and optionally adjusted by factor n.
+* e.g. "-pxamp 0.5" sets mxamp to 0.5 * maximum amplitude estimated by pre-pass. 
 -minwv n
-:	maximum hertz to render, expressed in wavelength as samples 
+* maximum hertz to render, expressed in wavelength as samples 
 -maxhz n
-:	same as minwv, expressed in hertz 
+* same as minwv, expressed in hertz 
 -maxwv n
-:	minimum hertz to render, expressed in wavelength as samples 
+* minimum hertz to render, expressed in wavelength as samples 
 -minhz n
-:	same as maxwv, expressed in hertz 
+* same as maxwv, expressed in hertz 
 -mrsmp n
-:	set size of measurement window in samples.
-:	analogous to a transform window length (number of samples 'heard' in one pixel) 
+* set size of measurement window in samples.
+* analogous to a transform window length (number of samples 'heard' in one pixel) 
 -mrtim n
-:	same as mrsmp only expressed in milliseconds. 
+* same as mrsmp only expressed in milliseconds. 
 
 _Channel_Selection_
 
 -chnnl n
-:	for stereo tracks, sets channel to render ( 0 or 1 ) 
+* for stereo tracks, sets channel to render ( 0 or 1 ) 
 -chnnl 2
-:	for stereo tracks, downmixes channels. 
+* for stereo tracks, downmixes channels. 
 -chnnl 3
-:	for stereo tracks, renders the difference between channels 
+* for stereo tracks, renders the difference between channels 
 
 _Other_switches_
 
 -rawfl [samplerate] [channels] [bytes per sample] [endian]
-:	to read as raw pcm, this switch and details must follow the filename in order:- any samplerate stated in hertz, 1|2 channels, 1|2 bytes per channel, big endian word order is default, add 'e' for little endian.
+* to read as raw pcm, this switch and details must follow the filename in order:- any samplerate stated in hertz, 1|2 channels, 1|2 bytes per channel, big endian word order is default, add 'e' for little endian.
 
-:	e.g. java -jar trumco.jar filename.aif -rawfl 44100 2 2 e -stspc 2
+* e.g. java -jar trumco.jar filename.aif -rawfl 44100 2 2 e -stspc 2
 
 -namex ext
-:	adds an extension ext to output file names, to avoid overwrites.
+* adds an extension ext to output file names, to avoid overwrites.
 
-:	e.g. srcfileext.00.bmp, srcfileext.01.bmp, etc..
+* e.g. srcfileext.00.bmp, srcfileext.01.bmp, etc..
 
 Examples
 ========
