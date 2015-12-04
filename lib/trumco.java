@@ -1,8 +1,12 @@
+// This program is distributed under the terms of the GNU General Public License Version 3
+// Copyright 2010,2012 Andrew Strain. 
+
+/* trumco.java Parses command line, coordinates reading and processing of input sample
+	 renders plots, draws axis, and delivers output to bmpout */
+
 import java.io.*;
 
-public final class spicter     
-/*  Parses command line, coordinates reading and processing of input sample
-    renders plots, draws axis, and delivers output to bmpout*/
+public final class trumco     
 {   
     int strtSpct,finiSpct,duraSpct;
     int mssrw,mssrStep,chnksteps; 
@@ -17,7 +21,6 @@ public final class spicter
 
     String filenam,pofix;
     takeWavb tookWav;
-    tronsFourm Foamer;
     short[] insamps;
     int preadsz=12288;
     int dochunks;
@@ -31,17 +34,17 @@ public final class spicter
     int axHght,axWdth,pltLen,pltHgt;
     double gamma,gscale;
     double strtd,stepsz;
-    double minWv=2d;
+    double minWv;
     int fsunit=0;
     double sclfac=0;
     double maxWv;
     boolean logfsc=true;
       
   public static void main(String[] args) /* main */
-  { spicter strt = new spicter(args);  //creates instance of self for nonstatic context hooha 
+  { trumco strt = new trumco(args);  //creates instance of self for nonstatic context hooha 
     System.exit(0); }                 
 
-  public spicter(String[] args)         /* constructor */
+  public trumco(String[] args)         /* constructor */
   { timerstrt = System.currentTimeMillis();
  
     byte argLen=(byte)args.length;
@@ -53,9 +56,9 @@ public final class spicter
     { poutln(helpnotes);
 	    System.exit(1); }
 
-    if(!((args[0].endsWith("v")|args[0].endsWith("V")))&&!(args[0]=="-rawfl"))
+    if(!((args[0].endsWith("v")|args[0].endsWith("V")))&&!(args[1].equalsIgnoreCase("-rawfl")))
     { poutln("  No filename to operate on...");
-	    poutln("  Usage: Java -jar spicter.jar [filename]\n");
+	    poutln("  Usage: Java -jar trumco.jar [filename]\n");
 	    System.exit(1); }
 
                        //   0        1        2        3        4
@@ -81,9 +84,9 @@ public final class spicter
     paramos[12]=0;   //sample stepping hazardous
   
     /* innerparameter defaults*/
-    gamma=1d;      gscale=0.33d;
-    pltLen=450;    pltHgt=450;   maplap=0; 
-    minWv=2;       mssrw= 450;   double autpltval=1;  
+    gamma=0.8d;    gscale=0.33d;
+    pltLen=800;    pltHgt=500;   maplap=0; 
+    minWv=3d;       mssrw= 450;   double autpltval=1;  
     mssrStep=0;     
     strtSpct=0;    finiSpct=-1;
     chnlScan=0;    duraSpct=-1;
@@ -109,7 +112,7 @@ public final class spicter
       catch ( ArrayIndexOutOfBoundsException e)
       { poutln("  Incomplete rawfile parameters\n  (continuing with defaults)"); }      
       tookWav = new takeWavb(args[0], preadsz, smrt, chls, Bps, endio); 
-      }
+		}
     else
     { tookWav = new takeWavb(args[0], preadsz);
       if(tookWav.totlFrames==0){ System.exit(0); } }
@@ -117,7 +120,7 @@ public final class spicter
     totframs=tookWav.totlFrames;
     finiSpct=totframs; strtSpct=0; duraSpct=-1;
     /*file opened*/
-
+  
     /* parse command line */
     //for every possible switch, test all arguements....
 
@@ -132,31 +135,30 @@ public final class spicter
               System.out.println("  Problem with command switch "+paramos[swtcdex]+" "+swtcdex+" "+args[argdex+1]);
               System.out.println("  (continuing with default setting)");
               paramos[swtcdex]=0;              }
-            }
+					}
           else{ paramos[swtcdex]=0; }
-          }//System.out.println(paramos[swtcdex]+" "+swtches[swtcdex]+" "+swtcdex+" "+args[argdex]);  
-        }//for each arguement
-      } //for each swtch and paramo
+				}//System.out.println(paramos[swtcdex]+" "+swtches[swtcdex]+" "+swtcdex+" "+args[argdex]);  
+			}//for each arguement
+		} //for each swtch and paramo'ption
 
-    
-    for(byte swtcdex=(byte)(swtchez.length-1) ; swtcdex>-1; swtcdex--) //Term is to select through switches
+    for(byte swtcdex=(byte)(swtchez.length-1) ; swtcdex>-1; swtcdex--) 
     { for(byte argdex=1; argdex<argLen; argdex++) 
       { if (swtchez[swtcdex].equalsIgnoreCase(args[argdex])) 
         { paramos[swtcdex+swtches.length]=0; 
           if((swtcdex==swtchez.length-1)&&(argdex+1<argLen))
           { pofix=(args[argdex+1]); } 
-            }//System.out.println(paramos[swtcdex]+" "+swtches[swtcdex]+" "+swtcdex+" "+args[argdex]);  
-        }//for each arguement
-      } //for each swtch and paramo
+				}//System.out.println(paramos[swtcdex]+" "+swtches[swtcdex]+" "+swtcdex+" "+args[argdex]);  
+			}//for each arguement
+		} //for each swtch and paramo
 
     /*configure internal parameters according to parsed inputs*/
     poutln("  Setting Plot Options....\n");
     if(paramos[0]>-1){ pltHgt=(int)paramos[0]; //-pltht
                        poutln("  Plot Height is changed to "+pltHgt); }
-                 else{ poutln("  Plot Height default is "+pltHgt); }//bands
+                 else{ poutln("  Plot Height default is "+pltHgt); }
     if(paramos[1]>-1){ pltLen=(int)paramos[1];     //-pltln
                        poutln("  Plot Width is changed to "+pltLen); }
-                 else{ poutln("  Plot Width default is "+pltLen); }//bands
+                 else{ poutln("  Plot Width default is "+pltLen); }
     if(paramos[19]>-1){ maplap=(int)paramos[19]; 
                         poutln("  Plot overlap set to "+(int)maplap);
                         if(maplap>=pltLen)
@@ -168,17 +170,17 @@ public final class spicter
       if(gscale>1){ gscale=1; poutln("  Max Amp set too high,"); }
       if(gscale<1d/0x7fff){ gscale=1d/0x7ffe; poutln("  Max Amp set too low,");}
       poutln("  Rendered (white) amp > "+pdouble(100,gscale,0)+" ( "+(int)(gscale*0x7fff)+" @16bit )");
-      }   //-mxamp 
+		}   //-mxamp 
 
     if(paramos[18]>-1){ gamma=paramos[18]; 
                         poutln("  Gamma factor set to "+pdouble(1000,gamma,0)); } 
 
     if(paramos[12]>0){ samStep=(int)paramos[12]; }  //-msspc
     boolean autoplt=false;
-    if(paramos[20]>-1){ stagger=paramos[20]; 
-                        poutln("  Step dither set to:"+pdouble(2,stagger,0));
-                        if(stagger>1)
-                        { stagger=1d; poutln("  Maximum step dither is 1"); } }
+    if(paramos[20]>-1)
+		{ stagger=paramos[20]; 
+      poutln("  Step dither set to:"+pdouble(2,stagger,0));
+      if(stagger>1){ stagger=1d; poutln("  Maximum step dither is 1"); } }
                       
     if(paramos[32]>-1){ axHght=0; poutln("  Not drawing Time Axis."); }  //noaxt
     if(paramos[33]>-1){ axWdth=0; poutln("  Not drawing Frequency Axis."); }  //noaxf  
@@ -204,9 +206,9 @@ public final class spicter
       else
       { if(chnlScan==0){ poutln("  First channel selected."); } }
       if(chnlScan==1){ poutln("  Second channel selected."); }
-      }  
+		}  
     
-    tookWav.setStep((byte)samStep); //sample stepping -future hack
+    tookWav.setStep((byte)samStep); //sample stepping -a curio
     
     if(paramos[4]>-1){ mssrw=(int)paramos[4]; }
     if(paramos[5]>-1){ mssrw=(int)((sampyrate*paramos[5])/1000); }
@@ -216,16 +218,16 @@ public final class spicter
     
     if(paramos[15]>-1) { minWv=sampyrate/paramos[15]; }
     if(paramos[16]>-1) { maxWv=sampyrate/paramos[16]; } 
-    else               { maxWv=(double)mssrw; }
+    else               { maxWv=(double)mssrw*2.0d; }
     if(paramos[17]>-1) { maxWv=paramos[17]; } 
-    if(paramos[7]>-1)  { minWv=paramos[7]; }          //-minwv
+    if(paramos[7]>-1)  { minWv=paramos[7]; }          //-minWv
     
     if(maxWv<minWv){ double t=maxWv; maxWv=minWv; minWv=t; }
     if(maxWv==minWv){ maxWv+=0.01f; 
                       poutln("! Attempted to correct selected frequency plot-range"); }
     poutln("  Frequency Plot Range:\n"
-          +"     "+pdouble(1000,(sampyrate/minWv),0)+"hz ("+pdouble(1000,minWv,0)+"t)\n"
-          +"  to "+pdouble(1000,(sampyrate/maxWv),0)+"hz ("+pdouble(1000,maxWv,0)+"t)" );  
+          +"     "+pdouble(1000,(sampyrate/minWv),0)+" Hz ("+pdouble(1000,minWv,0)+"t)\n"
+          +"  to "+pdouble(1000,(sampyrate/maxWv),0)+" Hz ("+pdouble(1000,maxWv,0)+"t)" );  
 
     if(logfsc)
     { sclfac=Math.pow(Math.E, Math.log((double)maxWv/minWv)/((double)pltHgt-1)); }
@@ -259,17 +261,20 @@ public final class spicter
     if(paramos[2]>-1){ stepsz=paramos[2]; autpltval=0; } //mleap 
     if(paramos[3]>-1){ stepsz=((paramos[3]*sampyrate)/1000); autpltval=0; } //mlept 
 
-    if((paramos[21]>-1)|paramos[6]==-1)
-    { poutln("\n  Estimating Maximimum Amplitude.."); gscale=ampfind();
-      poutln("  Max Amplitude estimate is "+pdouble(100,gscale,0));
+    if(paramos[6]==-1)
+    { pout("  Max Amplitude estimate is ");
+      gscale=ampfind();
+      poutln(pdouble(1000,gscale,0));
       if(gscale<1d/0x7fff){ gscale=1d/0x7ffe; }
-      if(paramos[21]>0)
+      
+			if(paramos[21]==-1){ paramos[21]=0.3d; }
+			if(paramos[21]>0)
       { gscale*=paramos[21]; 
         if(gscale>1){ gscale=1; }
         if(gscale<1d/0x7fff){ gscale=1d/0x7ffe; }
-        poutln("  Multiplying by factor of "+pdouble(100,paramos[21],0)+","); }
-      poutln("  Rendered (white) amp > "+pdouble(100,gscale,0)+" ( "+(int)(gscale*0x7fff)+" @16bit )");
-      }
+        poutln("  Multiplying by factor of "+pdouble(1000,paramos[21],0)+","); }
+      poutln("  Rendered (white) amp > "+pdouble(1000,gscale,0)+" ( "+(int)(gscale*0x7fff)+" @16bit )");
+		}
     
     if((paramos[2]>-1)|(paramos[3]>-1))
     { rmngsteps =((int)(0.1f+duraSpct/stepsz))+1;
@@ -288,21 +293,20 @@ public final class spicter
       { stepsz= (double)(autpltval*sampyrate)/(1000*pltLen); } //set step for milliseconds
       else                                                                  //or for plot quantity
       { if(autpltval>1){ stepsz=(double)duraSpct/(pltLen-1+((pltLen-maplap)*(autpltval-1)));}
-        else{ stepsz=(double)duraSpct/(pltLen*autpltval-1); }
-        } 
+        else{ stepsz=(double)duraSpct/(pltLen*autpltval-1); } } 
     
       if(paramos[36]>-1) // -rndst ,roundstep
       { stepsz=(double)((int)(stepsz+0.5d));
         if (stepsz==0){ stepsz=1; }
         pout("  "+stepsz+" (rounded),");
-        }
-      else{ pout(" "+pdouble(100,stepsz,0) ); }
-      tplots=duraSpct/(stepsz*pltLen);
+			}else{ pout(" "+pdouble(100,stepsz,0) ); }
+      
+			tplots=duraSpct/(stepsz*pltLen);
       if(tplots>1d){ tplots=(duraSpct-(stepsz*pltLen))/(stepsz*(pltLen-maplap))+1; }
     
       poutln(" samples\n  ("+pdouble(10,stepsz*1000/sampyrate,0)+" millisecs) to make "
            +pdouble(100,tplots,0)+" plots, ("+pdouble(1,(tplots*pltLen+1),0)+" measures)"); 
-     }
+		}
    
     rmngsteps =((int)(0.1f+duraSpct/stepsz))+1; 
     if(maplap>rmngsteps){ maplap=0; }
@@ -317,13 +321,12 @@ public final class spicter
 
     poutln("  Working....\n");
   
-    tronsFourm Foamer = new tronsFourm( pltHgt, mssrw, gscale, minWv, gamma, sclfac, logfsc, stagger); 
+    transform Foamer = new transform( pltHgt, mssrw, gscale, minWv, gamma, sclfac, logfsc, stagger); 
 
     strtd=(double)(strtSpct);              //strtspct is starting sample
     double unwlkd=0;                       //unwlkd is count of unwalked data available
     int zeropad= ((mssrw+1)/2)-strtSpct;   //zeropad is meassure centering shift
     
-  
     //calced here as the adjusted strtSpct
     //poutln("zeropad="+zeropad);
     /*zeropad the first samples of the first insamps*/ 
@@ -334,7 +337,7 @@ public final class spicter
       for(int fl=0; fl<tmpsmps.length; fl++)                //
       { insamps[fl+zeropad]=tmpsmps[fl]; }
       unwlkd+=(double)(tmpsmps.length+zeropad);
-      }
+		}
     else
     { //preskip
       tookWav.setSkip(0-zeropad);
@@ -343,7 +346,7 @@ public final class spicter
       for(int fl=0; fl<tmpsmps.length; fl++)
       { insamps[fl]=tmpsmps[fl]; }
       unwlkd+=(double)tmpsmps.length; 
-      }
+		}
     
     chnksteps =(int)((stepsz+unwlkd-mssrw)/stepsz); //poutln("chnksteps:"+chnksteps);
     
@@ -387,7 +390,7 @@ public final class spicter
           Foamer.skid(skip);
           //poutln(" skipped:"+(skip)); 
           unwlkd+=skip;       
-          }
+				}
         insamps= tookWav.getchn(chnlScan);
         unwlkd= unwlkd+insamps.length;
         chnksteps= (int)((stepsz+unwlkd-mssrw)/stepsz);
@@ -397,18 +400,16 @@ public final class spicter
         unwlkd=unwlkd-usein;
 
         if (chnksteps>rmngsteps){ chnksteps=rmngsteps; }
-        if (chnksteps==0){ if(insamps.length==0)
-                           { chnksteps=rmngsteps; } }
-        if (tumtime)
-        { if(chnksdn>2)
-          { long tumstop=System.currentTimeMillis();
-            long tumplt=((tumstop-tumstrt)*pltLen)/chnksdn;
-            if(tumplt>5000)
-            { poutln("  Plot could take more than "+(tumplt/1000)+" seconds"); }
-            tumtime=false; 
-            }
-          }
-        }
+        if ((chnksteps==0)&&(insamps.length==0)){ chnksteps=rmngsteps; } 
+
+        if (tumtime&&(chnksdn>2))
+        { long tumstop=System.currentTimeMillis();
+					long tumplt=((tumstop-tumstrt)*pltLen)/chnksdn;
+					if(tumplt>5000)
+					{ poutln("  Plot could take more than "+(tumplt/1000)+" seconds"); }
+					tumtime=false; 
+				}
+			}
       rsltAry=Foamer.Minspect(insamps, gscale, stepsz , chnksteps);
       chnksdn+=chnksteps;
       /*  
@@ -427,9 +428,7 @@ public final class spicter
 
 	  long finn = System.currentTimeMillis(); 
     poutln("\n  Took:"+((finn-timerstrt)/1000)+"s");
-    }//end spicter constructor
-
-  
+	}//end trumco's constructor which is also its ~executive
  /*-------------------------------------*/  
  
   private double ampfind()
@@ -440,10 +439,10 @@ public final class spicter
     for(int t=1,e=duraSpct; t<e; t++)
     { if(t==tmpsmps.length) { tmpsmps =tookWav.getchn(chnlScan); e-=t; t=0; }
       q=p;p=tmpsmps[t];
-      window[t%mssrw]=Math.abs(p);//Math.abs(p-q)+Math.abs(p+q);
+      window[t%mssrw]=Math.abs(p); //Math.abs(p-q)+Math.abs(p+q);
       ester+=window[t%mssrw]-window[(t+1)%mssrw];
       if((t>=mssrw)&&(ester>tester)){ tester=ester; }
-      }
+		}
     window = null;
     tookWav.setSkip(0);
     //amp(wavderv)=2*amp(wav)*pi/wavlen
@@ -451,7 +450,7 @@ public final class spicter
     if(ret<0.01d){ ret=0.1d; }
     if(ret>1d){ ret=1d; }
     return ret;
-    }
+	}
 
   private void graphReslts(int[] Viso)
   { for(int nwcol=0 ; nwcol<chnksteps; nwcol++)               //loopthrough new columbs
@@ -461,8 +460,8 @@ public final class spicter
       if(Bmapcol==pltLen)
       { //poutln("\nCalling save..\n"+"chnksteps:"+chnksteps+" nwcol:"+nwcol);
         saveGraph();   }                                    
-      }
-    }//end graphReslts
+		}
+	}//end graphReslts
   
   private void saveGraph()
   { if(axHght>8){ drawTimeAx(); }
@@ -496,15 +495,13 @@ public final class spicter
           BmapSrc[(line)*(pltLen+axWdth)+nwcol+axWdth];
       } } 
       BmapSrc =tmpbSrc;
-      pltLen=npltLen;  }
-    }
+      pltLen=npltLen;  
+		}
+	}
   /*-------------------------------------*/  
 
-
-
-  /*big chunk of axis drawing code follows (beware prehistoric architecture)*/
   /*big chunk of axis drawing code follows (beware)*/
-  private void drawFreqAx()
+  private void drawFreqAx()   
   { freqdrawn=true;
     //BmapSrc[axWdth]=fvcol;
     //BmapSrc[(pltLen+axWdth)+axWdth]=fvcol;     //draw first 2 pixels of axis
@@ -612,35 +609,35 @@ public final class spicter
     double oPxTm=(double)(stepsz/dsamrate)*1000000d;
     double mssrt=mssrw*1000000d/dsamrate;
     double stept=stepsz*500000d/dsamrate;
-    double[] markInvls={ 5,10,20,25 };                        //stepsz options for times
-    double frstGrphSmpl=(double)strtd;      //sample index of strt of graph
-    strtd+=(double)(pltLen-maplap)*stepsz;                      //updates for startof next graph
+    double[] markInvls={ 5,10,20,25 };                //stepsz options for times
+    double frstGrphSmpl=(double)strtd;                  //sample index of strt of graph
+    strtd+=(double)(pltLen-maplap)*stepsz;                //updates for startof next graph
     double goodstep=28000d; boolean mksqueeze=false,mkhop=false;
     if(pltLen<100){ goodstep=14000d; mksqueeze=true; }
     if(pltLen<15){ goodstep=(pltLen*1000)/3.5d+4000d; mksqueeze=true; }
     if(pltLen<3){ goodstep=15000; mksqueeze=false; }
     if(pltLen==1){ goodstep=2500; mksqueeze=false; }
-    double minMrkI=(double)(stepsz*goodstep/dsamrate)*1000;        //nanoseconds elapsed in 25 pixels
+    double minMrkI=(double)(stepsz*goodstep/dsamrate)*1000;     //nanoseconds elapsed in 25 pixels
 
     double mrkScl=1d;
     int markChu=0;
-    for( ; ((markInvls[markChu]*mrkScl)<minMrkI)&&(mrkScl<1.0e12d);  )
+    for( ; markInvls[markChu]*mrkScl<minMrkI && mrkScl<1.0e12d ;  )
     { markChu++; if(markChu==4){ markChu=0; mrkScl*=10d;} }
 
-    double mrkInrvl= markInvls[markChu]*mrkScl;    //mrkInrvl is minimum optsize
-                                                    //22 to 46 pixels long
+    double mrkInrvl= markInvls[markChu]*mrkScl;     
+		//mrkInrvl is minimum optsize, 22 to 46 pixels long
                                                     //System.out.println("fitspc:"+fitspc);
-    int fsdMrk=0;                                   //first significant digit of optsize
+    int fsdMrk=0;   //first significant digit of optsize
     for(double test=10; mrkInrvl%test==0; test*=10){ fsdMrk++;}
                                                     //System.out.println("fsdMrk:"+fsdMrk);
-    long untFct=1; int deplc=0; int tunit=1; //(nano)                    
-    if(fsdMrk>0){ untFct=1000; deplc=3-fsdMrk; tunit=2; }//millisecs
-    if(fsdMrk>3){ untFct=1000000; deplc=6-fsdMrk; tunit=3; }//secs
-    if(fsdMrk>8){ untFct=1000000000; deplc=9-fsdMrk; tunit=4; }//kilosecs
-    if(fsdMrk>10){ untFct=1000000000000l; deplc=12-fsdMrk; tunit=5; }//megasecs
-    if(deplc<0){ deplc=0; }
+    long untFct=1; int deplc=0; int tunit=1;                  //nano                    
+    if(fsdMrk>0) { untFct=1000; deplc=3-fsdMrk; tunit=2; }      //millisecs
+    if(fsdMrk>3) { untFct=1000000; deplc=6-fsdMrk; tunit=3; }     //secs
+    if(fsdMrk>8) { untFct=1000000000; deplc=9-fsdMrk; tunit=4; }    //kilosecs
+    if(fsdMrk>10){ untFct=1000000000000l; deplc=12-fsdMrk; tunit=5; } //megasecs
+    if(deplc<0)  { deplc=0; }
 
-    int tbar=clrmrg(thcol,thblk,0.7f); //acceptable temporal separation marks 
+    int tbar=clrmrg(thcol,thblk,0.7f); //measure separation marks 
     if(stepsz>=mssrw*2)
     { tbar=clrmrg( 0x00600000,tbar, (float)(stepsz-mssrw)/(float)(mssrw+stepsz) ); }
  
@@ -678,13 +675,13 @@ public final class spicter
                       thsPxTm/untFct, deplc, tunit, (tmlin-lstscrib-6) );
           lstscrib=tmlin; 
           mkhop=true; //poutln("  "+thsPxTm/untFct);
-          }
+				}
         else
         { BmapSrc[(pltHgt+(2))*(pltLen+axWdth) +axWdth+tmlin]=tdcol;
           mkhop=false; }
         //System.out.println("thspx:"+thsPxTm/untFct+"  deplc:"+deplc+" fitspc:"+fitspc);
-        }//end val writing
-      }                                    //for each horiz pixel
+			}//end val writing
+		}                                    //for each horiz pixel
     return; }                              //time axis drawn           
         
   private double screenScale( int line, int uni )
@@ -693,8 +690,7 @@ public final class spicter
     else { retu=(double) minWv*Math.pow(sclfac,line); }
     if(uni==0)
     { return (double)sampyrate/retu; } //(hrzt)
-    return retu; 
-    }
+    return retu; }
 
   private int scoreVal( double sval )
   { double scorwv=sval; if((scorwv==Double.POSITIVE_INFINITY)|(scorwv<0)){ return 0; }
@@ -709,9 +705,9 @@ public final class spicter
       thscor|=1000/(1+pete*pete);
       pete=Math.abs((((scorwvi*sfac)+5)%10)-5); 
       thscor|=100/(1+pete*pete); 
-      }//calc the numbers score
-    return thscor;
-    }
+		}
+    return thscor; //actractiveness of value to label axis
+	}
 
   private int clrmrg(int cola, int colb, float rata)
   { float ratb=1-rata;
@@ -722,13 +718,13 @@ public final class spicter
     int b=( ( (int)(((cola)&0xff)*rata)+
               (int)(((colb)&0xff)*ratb) ))&0xff;
     return (r<<16)+(g<<8)+b;
-    }
+	}
 
   private int pmsigdig( double valo )
   { int pmsd=-5;  valo*=1000000d;                        
     for(double test=10; (int)(valo/test)!=0; test*=10d){ pmsd++;}
     return pmsd;
-    }
+	}
 
   private void scribVal(int clr, int locat, double scribno, int deplac, int unit, int space)
   { if(space<4){ return; }
@@ -741,7 +737,7 @@ public final class spicter
     { if(space<4){ scribDgt(clr, locat, 11 ); return; }
       scribDgt(clr, locat, wrkInt%10 ); wrkInt/=10; locat-=4; 
       space-=4;
-      } //scrib decimals as applic
+		} //scrib decimals as applic
     
     if(deplac>0){ scribDgt(clr, locat,10); locat-=2; space-=2; }       //scrib point if applic
     
@@ -754,11 +750,10 @@ public final class spicter
     { scribDgt(clr, locat, wrkInt%10 ); locat-=4;  }                //scrib last or a zero
 
     return; 
-    }//end scribVal
+	}//end scribVal
 
   static final boolean x=true, o=false;
-
-  static final boolean[][][] numerc=
+  static final boolean[][][] numerc= //tiny numbers
    {{{o,x,o},{x,o,x},{x,o,x},{x,o,x},{o,x,o}},//0
     {{o,x,o},{x,x,o},{o,x,o},{o,x,o},{o,x,o}},//1
     {{x,x,o},{o,o,x},{o,x,o},{x,o,o},{x,x,x}},//2
@@ -778,7 +773,7 @@ public final class spicter
     {{o,o,o},{o,o,o},{o,x,x},{o,x,o},{x,x,o}},//sec
     {{o,o,o},{o,o,o},{x,o,x},{x,x,o},{x,o,x}}};//k
 
-  private void scribDgt(int clr, int locat, int dgt)
+  private void scribDgt(int clr, int locat, int dgt) //puts dot pattern in bitmapsource
   { for(int vertip=0; vertip<5; vertip++)
     { if(numerc[dgt][vertip][0])
       { BmapSrc[locat-2+(vertip*(pltLen+axWdth))]=BmapSrc[locat-2+(vertip*(pltLen+axWdth))]|clr; }
@@ -786,50 +781,138 @@ public final class spicter
       { BmapSrc[locat-1+(vertip*(pltLen+axWdth))]=BmapSrc[locat-1+(vertip*(pltLen+axWdth))]|clr; }
       if(numerc[dgt][vertip][2])
       { BmapSrc[locat+(vertip*(pltLen+axWdth))]=BmapSrc[locat+(vertip*(pltLen+axWdth))]|clr; } 
-      }
-    }//end scribDgt
+		} }
   
-  private static void poutln(String deb)  //writing to size, for debug output
-  { System.out.println(deb); 
-    }//end debout method
+  private static void poutln(String deb)  
+  { System.out.println(deb); }
 
-  private static void pout(String deb)  //writing to size, for debug output
-  { System.out.print(deb); 
-    }//end debout method
+  private static void pout(String deb)  
+  { System.out.print(deb); }
 
   private static String pdouble(int dplc, double deb, int size)  //writing to size, for debug output
   { String sdeb= Double.toString((double)((int)(deb*dplc+0.499d))/(dplc));
     size=size-sdeb.length();
-    for(int o=0; o<size; o++) { System.out.print(" ");}
+    for(int oa=0; oa<size; oa++) { System.out.print(" ");}
     return sdeb;
-    }//end debout method
+	}
 
   private static String helpnotes =
-    "  Help Notes on Spictrograph: "
-   +"\n  Java -jar spicter.jar wavname.wav -%params% %values%\n"
-   +"  -pltht : scanlines (plot height in pixels)\n"
+    "  Help Notes for Trumco: \n"
+   +"  Java -jar trumco wavname.wav -%params% %values%\n"
+	 +"  Creates a big spectrogram or more of input file\n"
+   +"  -pltht :output scanlines (plot height in pixels)\n"
    +"  -pltln : output chart width (plot width in pixels)\n"
-   +"  -mleap : measure leap (time detail, in samples)\n"
-   +"  -mlept : measure leap in millisecs\n"
-   +"  -mears : measure window, in samples (freq detail~complexity)\n"
-   +"  -meart : measure window in millisecs\n"
-   +"  -mxamp : max amplitude to expect (0.01>1)\n"
-   +"  -minwv : min wavelen to include\n"
+   +"  -stspc : start output range at millisecs\n"
+   +"  -fnspc : finish output range at millisecs\n"
+   +"  -dursp : range output duration in millisecs\n"
+   +"  -aplts : auto adjust mleap and pltln to produce %V% plots\n"
+   +"  -minhz :min hertz to include (equiv as maxwv)\n"
    +"  -maxhz : max hertz to include (equiv as minwv)\n"
-   +"  -stspc : start spict at millisecs\n"
-   +"  -fnspc : finish spict at millisecs\n"
-   +"  -dursp : spict duration in millisecs\n"
-   +"  -chnnl : which channel to scan 0,1\n"
+   +"  -minwv : min wavelen to include\n"
+   +"  -maxwv : max wavelen to include\n"
+	 +"  -mrsmp :measure window, in samples (freq detail~complexity)\n"
+   +"  -mrtim : measure window in millisecs\n"
+   +"  -lpsmp :measure leap (time detail, in samples)\n"
+   +"  -lptim : measure leap in millisecs\n"
+   +"  -pxamp :auto max amplitude * a factor \n"
+   +"  -mxamp : max amplitude to expect (0.01>1)\n"
+   +"  -chnnl :which channel to scan 0,1\n"
    +"  -dwnmx : sum of 2 channels\n"
    +"  -dffmx : difference between 2 channels\n"
-   +"  -aplts : auto adjust mleap and pltln to produce %V% plots\n"
-   +"  -aplti : aplts with integer value for mleap\n"
    +"  -axisc : change axis\n\n"
+   +"  -gamma : change gamma\n\n"
    ;
    
-  }//end spicter
+  }//end trumco
 
+    /*
+	
+	
+-aplts : auto adjust mleap and pltln to produce %V% plots\n"
+-axisc : change axis\n\n"
 
+-chnnl : which channel to scan 0,1\n"
+
+-dffmx : difference between 2 channels\n"
+
+-dursp : spect duration in millisecs\n"
+
+-dwnmx : sum of 2 channels\n"
+
+-fiwvl"
+
+-fnspc : finish spect at millisecs\n"
+
+-gamma"
+
+-logfs"
+
+-lpsmp : measure leap (time detail, in samples)\n"
+
+-lptim : measure leap in millisecs\n"
+
+-maxhz : max hertz to include (equiv as minwv)\n"
+
+-maxwv : max wavelen to include\n"
+
+-minhz : min hertz to include (equiv as maxwv)\n"
+
+-minwv : min wavelen to include\n"
+
+-mrsmp : measure window, in samples (freq detail~complexity)\n"
+
+-mrtim : measure window in millisecs\n"
+
+-msspc"
+
+-mxamp : max amplitude to expect (0.01>1)\n"
+-mxamp"
+-mxamp"
+
+-namex" 
+-namex" 
+
+-noaxf"
+-noaxf"
+-noaxt"
+-noaxt"
+
+-outfi"
+-outfi"
+
+-ovlap"
+-ovlap"
+
+-ovrwt"
+-ovrwt"
+
+-pltht : scanlines (plot height in pixels)\n"
+-pltht"
+-pltht"
+
+-pltln : output chart width (plot width in pixels)\n"
+-pltln"
+-pltln"
+
+-pntdt"
+-pntdt"
+
+-pxamp : auto max amplitude * factor \n"
+-rleap"
+-sdith"
+-spred"
+-stspc : start spect at millisecs\n"
+-stspc
+-tprpl
+*/
+	
+	
+	
+	
+	
+	
+	
+	
 //writeaval(color, position, number, decplaces, units)
 //discMsd(number)
 // if markscale is 1, then nanoseconds are appropriate interval quoted as, 5 to 25 etc

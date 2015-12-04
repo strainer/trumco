@@ -1,4 +1,4 @@
-public class tronsFourm
+public class transform
 /* class to provide discernment methods on pcm stream */
 { 
 	private int rsltAry[];  //array used to return results
@@ -60,7 +60,7 @@ public class tronsFourm
   
   private byte[] scrngm;
   
-  public tronsFourm(int linez, int msre, double scale, double ceil,
+  public transform(int linez, int msre, double scale, double ceil,
                    double gam, double sclfact, boolean logperi, double stag) 
   { 
     linFqscl=!logperi; sclfac=sclfact;
@@ -380,6 +380,7 @@ public class tronsFourm
       if(solved>0)
       { red=(int)( ((solved*ampCm)<<9)/((long)pscale*aptId) ) ; }
       
+			if(red>1){ red+=Math.sqrt(red+6)*25; }
       //System.out.println(tstPos);
       if(red>1023){ red=1023;}//red=abs(blue-green);
       red=(int)(scrngm[red&1023]&0xff);
