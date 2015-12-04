@@ -1,5 +1,5 @@
-// This program is distributed under the terms of the GNU General Public License Version 3
-// Copyright 2010,2012 Andrew Strain. 
+// This program is distributed under the terms of the GNU General Public License Version 2
+// Copyright 2010,2012,2015 Andrew Strain. 
 
 /* trumco.java Parses command line, coordinates reading and processing of input sample
 	 renders plots, draws axis, and delivers output to bmpout */
