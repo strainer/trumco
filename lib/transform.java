@@ -121,8 +121,8 @@ public class transform
       
       for(int tGenI=0 ; tGenI < Mspan; tGenI++) /* proposal pulse*/
       { //two detection patterns for stock, pscale<7fff, Isine<ffff
-        proppA[linn][tGenI]=(short)(((long)Isine((shiftphase+tGenI*4096/pWvln)%4096)*pscale)>>16);
-        proppB[linn][tGenI]=(short)(((long)Isine((1024+shiftphase+tGenI*4096/pWvln)%4096)*pscale)>>16);
+        proppA[linn][tGenI]=(short)(((long)Isine((shiftphase+tGenI*4096/pWvln))*pscale)>>16);
+        proppB[linn][tGenI]=(short)(((long)Isine((1024+shiftphase+tGenI*4096/pWvln))*pscale)>>16);
         }
 
       prpHtIn[linn]=(long)proppA[linn][0]*proppA[linn][0] /*start tally height*/
@@ -131,9 +131,9 @@ public class transform
       //intg self*self * 2
       //in the measuring loop the derivative is assumed as -val[t-1]+val[t] thus begin:
       long Gaa
-      =(long)(proppA[linn][0]-(int)(((long)Isine((4096+shiftphase+(-1)*4096/pWvln)%4096)*pscale)/65536));
+      =(long)(proppA[linn][0]-(int)(((long)Isine((4096+shiftphase+(-1)*4096/pWvln))*pscale)/65536));
       long Gbb
-      =(long)(proppB[linn][0]-(int)(((long)Isine((1024+4096+shiftphase+(-1)*4096/pWvln)%4096)*pscale)/65536));
+      =(long)(proppB[linn][0]-(int)(((long)Isine((1024+4096+shiftphase+(-1)*4096/pWvln))*pscale)/65536));
 
       prpGrIn[linn]=Gaa*Gaa+Gbb*Gbb;
       
@@ -330,11 +330,11 @@ public class transform
     //long ampHt = (long)((Math.sqrt( comHx*comHx + comHy*comHy )*pscale)/(double)tprpHtIn);
     //long ampGd = (long)((Math.sqrt( comGx*comGx + comGy*comGy )*pscale)/(double)tprpGrIn);
     
-    int zimap =(Itan( comHy,comHx )+8192+2048+tstphzff[linn])%4096;
-    int zimaq =(Itan( comGy,comGx )+8192+tstphzff[linn])%4096; //! fix
+    int zimap =(Itan( comHy,comHx )+8192+2048+tstphzff[linn])&4095;
+    int zimaq =(Itan( comGy,comGx )+8192+tstphzff[linn])&4095; //! fix
 
     int ampCm=(ampGd+ampHt)/2; //combined amplitude
-    int zimac=zimap- ( ( ((zimap-zimaq)%2048)*2-(zimap-zimaq) )*abs(ampGd) )/(abs(ampHt+ampGd)+1)+8192;
+    int zimac=zimap- ( ( ((zimap-zimaq)&2047)*2-(zimap-zimaq) )*abs(ampGd) )/(abs(ampHt+ampGd)+1)+8192;
   
     int wfmId=0; //Integral of derivative
     int comId=0;
