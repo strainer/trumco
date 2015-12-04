@@ -39,19 +39,20 @@ suspense, an estimate of plot generation time is reported.
 Usage
 =====
 
-Trumco runs from a command window or script where normal considerations to the
-locations of the Java interpreter, trumco.jar and the audio source file apply.
+Trumco runs from a command window or script.
 
-The simplest command to run trumco would be:
-java trumco.class sourcetrack.wav 
+`java trumco.class sourcetrack.wav` 
+* makes a plot of the whole file.
 
-It is possible for switches to conflict, for example -aplts, -lptim and -tprpl
-all set time resolution in different ways.  
+`java trumco.class sourcetrack.wav -aplts 10 -ovlap 100 -pltln 1000` 
+* makes 10 overlapped plots of the whole file.
+
 
 Switches
 ========
 
-_Plot_Appearance_
+ Plot Appearance 
+-----------------
 
 -pltht n
 * set plot height in pixels 
@@ -81,7 +82,8 @@ _Plot_Appearance_
 * (can improve appearance but distorts measurements)
 * If set to 1, green and blue pixel values of 255 will indicate a potential sinusoidal component with amplitude equal or exceeding -mxamp. Pixel values under 255 will indicate an amplitude of mxamp*value/255 
 
-_Time-scale_setters_
+ Time-scale setters 
+--------------------
 
 -aplts n
 * 'autoplots' sets measure leap (time resolution) automatically to produce the specified number of plots for given audio file or a specified time range within file. 
@@ -99,7 +101,8 @@ _Time-scale_setters_
 -rleap n
 * round 'measure leap' down to whole sample length, (fwiw). 
 
-_Plot_Range_
+ Plot Range 
+------------
 
 -dursp n
 * duration to plot in millisecs 
@@ -110,7 +113,8 @@ _Plot_Range_
 -fnspc n
 * finish plot at n millisecs 
 
-_Measurement_Parameters_
+ Measurement Parameters 
+------------------------
 
 -mxamp n
 * maximum amplitude to expect in audio,
@@ -140,7 +144,8 @@ _Measurement_Parameters_
 -mrtim n
 * same as mrsmp only expressed in milliseconds. 
 
-_Channel_Selection_
+ Channel Selection 
+-------------------
 
 -chnnl n
 * for stereo tracks, sets channel to render ( 0 or 1 ) 
@@ -151,7 +156,8 @@ _Channel_Selection_
 -chnnl 3
 * for stereo tracks, renders the difference between channels 
 
-_Other_switches_
+ Other switches 
+----------------
 
 -rawfl [samplerate] [channels] [bytes per sample] [endian]
 * to read as raw pcm, this switch and details must follow the filename in order:- any samplerate stated in hertz, 1|2 channels, 1|2 bytes per channel, big endian word order is default, add 'e' for little endian.
